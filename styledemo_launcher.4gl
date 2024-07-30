@@ -42,13 +42,13 @@ MAIN
     CONNECT TO ":memory:+driver='dbmsqt'"
     CALL populate_db()
     
-    LET m_data.widget_name = "Edit"
-    LET m_data.container_name = "Grid"
-    LET m_data.dialog_name = "Input"
-    LET m_data.dataType_name = "CHAR"
+    LET m_data.widget_name = "edit"
+    LET m_data.container_name = "grid"
+    LET m_data.dialog_name = "input"
+    LET m_data.dataType_name = "char"
 
     DIALOG ATTRIBUTES(UNBUFFERED)
-        -- INPUT for ComboBoxes
+        -- INPUT for comboboxes
         INPUT BY NAME m_data.widget_name, m_data.container_name, m_data.dialog_name, m_data.dataType_name ATTRIBUTES(WITHOUT DEFAULTS = TRUE)
         END INPUT
         -- INPUT ARRAY for Widget Attributes tab
@@ -310,8 +310,8 @@ FUNCTION build_per() RETURNS STRING
     IF m_data.container_name == "Grid" THEN
         CALL sb.append("    GRID\n" || "    {\n")
         CALL sb.append("        Control [f01                 : ]\n" || "        Test    [f02                 : ]\n")  -- TODO set grid width to entered value
-    ELSE IF m_data.container_name == "Table" THEN
-            CALL sb.append("    TABLE\n" || "    {\n")
+    ELSE IF m_data.container_name == "table" THEN
+            CALL sb.append("    table\n" || "    {\n")
             CALL sb.append("     Control         Test     \n" || "    [f01        |f02        ]\n")  -- TODO set table width to entered value
         END IF
     END IF

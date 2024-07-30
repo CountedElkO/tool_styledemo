@@ -67,20 +67,20 @@ LAYOUT (TEXT="Widget & Style Demo Launcher")
 END #LAYOUT
 ATTRIBUTES
 
-    COMBOBOX f01 = formonly.container_name, ITEMS=("Grid", "Table", "ScrollGrid");
-    COMBOBOX f02 = formonly.widget_name, ITEMS=("ButtonEdit", "CheckBox", "ComboBox", "DateEdit", "DateTimeEdit", "Edit", "Image", "Label", "ProgressBar", "RadioGroup", "Slider", "SpinEdit", "TextEdit", "TimeEdit");
-    COMBOBOX f03 = formonly.dialog_name, ITEMS=("Input", "Construct");
-    COMBOBOX f04 = formonly.DataType_name, ITEMS=("CHAR", "BOOLEAN", "INTEGER", "DATE", "DATETIME", "INTERVAL", "DECIMAL", "FLOAT");
+    combobox f01 = formonly.container_name, ITEMS=("Grid", "Table", "ScrollGrid");
+    combobox f02 = formonly.widget_name, ITEMS=("buttonedit", "checkbox", "combobox", "dateedit", "datetimeedit", "edit", "image", "label", "progressbar", "radiogroup", "slider", "spinedit", "textedit", "timeedit");
+    combobox f03 = formonly.dialog_name, ITEMS=("Input", "Construct");
+    combobox f04 = formonly.DataType_name, ITEMS=("CHAR", "BOOLEAN", "INTEGER", "DATE", "DATETIME", "INTERVAL", "DECIMAL", "FLOAT");
 
-    EDIT c01 = formonly.widget_attribute_name, SCROLL, TITLE="Name", COMPLETER, PLACEHOLDER="Press SPACE";
-    EDIT c02 = formonly.widget_attribute_value, SCROLL, TITLE="Value", COMPLETER, PLACEHOLDER="Press SPACE";
-    EDIT c03 = formonly.widget_style_attribute_name,  SCROLL, TITLE="Name", COMPLETER, PLACEHOLDER="Press Space";
-    EDIT c04 = formonly.widget_style_attribute_value, SCROLL, TITLE="Value", COMPLETER, PLACEHOLDER="Press Space";
-    EDIT c05 = formonly.common_style_attribute_name,  SCROLL, TITLE="Name", COMPLETER, PLACEHOLDER="Press SPACE";
-    EDIT c06 = formonly.common_style_attribute_value, SCROLL, TITLE="Value", COMPLETER, PLACEHOLDER="Press SPACE";
+    edit c01 = formonly.widget_attribute_name, SCROLL, TITLE="Name", COMPLETER, PLACEHOLDER="Press SPACE";
+    edit c02 = formonly.widget_attribute_value, SCROLL, TITLE="Value", COMPLETER, PLACEHOLDER="Press SPACE";
+    edit c03 = formonly.widget_style_attribute_name,  SCROLL, TITLE="Name", COMPLETER, PLACEHOLDER="Press Space";
+    edit c04 = formonly.widget_style_attribute_value, SCROLL, TITLE="Value", COMPLETER, PLACEHOLDER="Press Space";
+    edit c05 = formonly.common_style_attribute_name,  SCROLL, TITLE="Name", COMPLETER, PLACEHOLDER="Press SPACE";
+    edit c06 = formonly.common_style_attribute_value, SCROLL, TITLE="Value", COMPLETER, PLACEHOLDER="Press SPACE";
 
-    TEXTEDIT t02 = formonly.per, STRETCH=BOTH, FONTPITCH=FIXED;
-    TEXTEDIT t03 = formonly.st, STRETCH=BOTH, FONTPITCH=FIXED;
+    textedit t02 = formonly.per, STRETCH=BOTH, FONTPITCH=FIXED;
+    textedit t03 = formonly.st, STRETCH=BOTH, FONTPITCH=FIXED;
 
     BUTTON b01: go, TEXT="GO", STRETCH=X, STYLE="triple";
 END #ATTRIBUTES
