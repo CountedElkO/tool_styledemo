@@ -6,6 +6,7 @@ LAYOUT (TEXT="Widget & Style Demo Launcher")
                 {
                 Container    [f01      ] Dialog      [f03      ] 
                 Widget       [f02      ] DataType    [f04      ]
+                Case Style   [f00                              ]
                 }
                 END #GRID
                 FOLDER
@@ -66,11 +67,11 @@ LAYOUT (TEXT="Widget & Style Demo Launcher")
     END #VBOX
 END #LAYOUT
 ATTRIBUTES
-
-    combobox f01 = formonly.container_name, ITEMS=("Grid", "Table", "ScrollGrid");
-    combobox f02 = formonly.widget_name, ITEMS=("buttonedit", "checkbox", "combobox", "dateedit", "datetimeedit", "edit", "image", "label", "progressbar", "radiogroup", "slider", "spinedit", "textedit", "timeedit");
-    combobox f03 = formonly.dialog_name, ITEMS=("Input", "Construct");
-    combobox f04 = formonly.DataType_name, ITEMS=("CHAR", "BOOLEAN", "INTEGER", "DATE", "DATETIME", "INTERVAL", "DECIMAL", "FLOAT");
+    radiogroup f00 = formonly.case_style_name, ORIENTATION=HORIZONTAL, ITEMS=("UPPERCASE", "camelCase", "lowercase");
+    combobox f01 = formonly.container_name; --ITEMS=("grid", "table", "folder", "scrollgrid");
+    combobox f02 = formonly.widget_name; --ITEMS=("buttonedit", "checkbox", "combobox", "dateedit", "datetimeedit", "edit", "image", "label", "progressbar", "radiogroup", "slider", "spinedit", "textedit", "timeedit");
+    combobox f03 = formonly.dialog_name; --ITEMS=("input", "construct");
+    combobox f04 = formonly.datatype_name; -- ITEMS=("char", "boolean", "integer", "date", "datetime", "interval", "decimal", "float");
 
     edit c01 = formonly.widget_attribute_name, SCROLL, TITLE="Name", COMPLETER, PLACEHOLDER="Press SPACE";
     edit c02 = formonly.widget_attribute_value, SCROLL, TITLE="Value", COMPLETER, PLACEHOLDER="Press SPACE";
@@ -85,7 +86,7 @@ ATTRIBUTES
     BUTTON b01: go, TEXT="GO", STRETCH=X, STYLE="triple";
 END #ATTRIBUTES
 INSTRUCTIONS 
-    SCREEN RECORD scr(widget_name, container_name, dialog_name);
+    SCREEN RECORD scr(case_style_name, widget_name, container_name, dialog_name, datatype_name);
     SCREEN RECORD widget_attribute_scr(widget_attribute_name, widget_attribute_value); 
     SCREEN RECORD widget_style_scr(widget_style_attribute_name, widget_style_attribute_value);
     SCREEN RECORD common_style_scr(common_style_attribute_name, common_style_attribute_value);

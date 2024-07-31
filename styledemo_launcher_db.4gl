@@ -35,20 +35,22 @@ FUNCTION widget_names()
     INSERT INTO widget_names VALUES ("timeedit", 16, "TimeEdit")
     
 END FUNCTION
-function datatype_names()
+
+FUNCTION datatype_names()
     CREATE table datatype_names(widget CHAR(20), weight INTEGER, datatype_camelcase char(20))
 
-    insert into datatype_names values ("char", 1, "Char")
-    insert into datatype_names values ("boolean", 2, "Boolean")
-    insert into datatype_names values ("integer", 3, "Integer")
-    insert into datatype_names values ("date", 4, "Date")
-    insert into datatype_names values ("datetime", 5, "DateTime")
-    insert into datatype_names values ("interval", 6, "Interval")
-    insert into datatype_names values ("decimal", 7, "Decimal")
-    insert into datatype_names values ("float", 8, "Float")
-end function   
+    INSERT INTO datatype_names VALUES ("char", 1, "Char")
+    INSERT INTO datatype_names VALUES ("boolean", 2, "Boolean")
+    INSERT INTO datatype_names VALUES ("integer", 3, "Integer")
+    INSERT INTO datatype_names VALUES ("date", 4, "Date")
+    INSERT INTO datatype_names VALUES ("datetime", 5, "DateTime")
+    INSERT INTO datatype_names VALUES ("interval", 6, "Interval")
+    INSERT INTO datatype_names VALUES ("decimal", 7, "Decimal")
+    INSERT INTO datatype_names VALUES ("float", 8, "Float")
+END FUNCTION   
   
 FUNCTION widget_attribute_names()
+    -- TODO double check each widget for all attributes
     CREATE table widget_attribute_names (widget CHAR(20), name CHAR(20), weight INTEGER)
     
     INSERT INTO widget_attribute_names VALUES ("aggregate", "aggregatetext", 10) 
@@ -148,6 +150,7 @@ END FUNCTION
 FUNCTION widget_attribute_values()
     CREATE TABLE widget_attribute_values (name CHAR(20), value CHAR(20), weight INTEGER, quote BOOLEAN)
     -- TODO change widget_attribute_values format to this
+    -- TODO fill more values
     INSERT INTO widget_attribute_values VALUES ("justify", "left", 1, false) 
     INSERT INTO widget_attribute_values VALUES ("justify", "center", 2, false) 
     INSERT INTO widget_attribute_values VALUES ("justify", "right", 3, false) 

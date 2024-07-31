@@ -6,6 +6,7 @@ TYPE itemsListType DYNAMIC ARRAY OF STRING
 
 DEFINE m_data RECORD
 
+    case_style_name STRING,
     widget_name STRING,
     container_name STRING,
     dialog_name STRING,
@@ -24,7 +25,8 @@ DEFINE m_data RECORD
         common_style_attribute_value STRING
     END RECORD
 END RECORD
-
+DEFINE case_style STRING
+DEFINE fileName STRING
 MAIN
     WHENEVER ANY ERROR STOP
     DEFER INTERRUPT
@@ -42,14 +44,12 @@ MAIN
     CONNECT TO ":memory:+driver='dbmsqt'"
     CALL populate_db()
     
-    LET m_data.widget_name = "edit"
-    LET m_data.container_name = "grid"
-    LET m_data.dialog_name = "input"
-    LET m_data.dataType_name = "char"
-
     DIALOG ATTRIBUTES(UNBUFFERED)
         -- INPUT for comboboxes
-        INPUT BY NAME m_data.widget_name, m_data.container_name, m_data.dialog_name, m_data.dataType_name ATTRIBUTES(WITHOUT DEFAULTS = TRUE)
+        INPUT BY NAME m_data.case_style_name, m_data.widget_name, m_data.container_name, m_data.dialog_name, m_data.dataType_name ATTRIBUTES(WITHOUT DEFAULTS = TRUE)
+            ON CHANGE case_style_name
+                CALL case_style_selector()
+                CALL comboBoxFiller(case_style)
         END INPUT
         -- INPUT ARRAY for Widget Attributes tab
         INPUT ARRAY m_data.widget_attribute_arr FROM widget_attribute_scr.* ATTRIBUTES(INSERT ROW = FALSE)
@@ -124,15 +124,98 @@ MAIN
             INITIALIZE m_data TO NULL
             
         ON ACTION IMPORT ATTRIBUTES(TEXT="Import")
-            CALL fgl_winMessage("Info", "Not Implemented", "info") -- TODO read json file and serialize into m_data
+            --CALL ui.Interface.frontCall("standard", "openFile")
+            {CALL fgl_winMessage("Info", "Not Implemented", "info") -- TODO read json file and serialize into m_data}
             
         ON ACTION export ATTRIBUTES(TEXT="Export")
-            CALL fgl_winMessage("Info", "Not implemented", "info") -- TODO implement serialize m_data to json and write to file
+            CALL ui.Interface.frontCall("standard", "saveFile", ["","","","saveFile"],[fileName])
+            -- TODO CALL fgl_putFile(, fileName)
+            -- JSON toString
+            --CALL fgl_winMessage("Info", fileName, "info") -- TODO implement serialize m_data to json and write to file
             
         ON ACTION close
             EXIT DIALOG
     END DIALOG
 END MAIN
+
+FUNCTION case_style_selector ()
+    CASE m_data.case_style_name
+        WHEN "UPPERCASE"
+            LET case_style = "upshift"
+        WHEN "camelCase"
+            LET case_style = "camelCase"
+        WHEN "lowercase"
+            LET case_style = "downshift"
+    END CASE
+END FUNCTION
+-- Fills comboboxes with names based on case_style
+FUNCTION comboBoxFiller(case_style STRING)
+    DEFINE widget_sql, container_sql, dialog_sql, datatype_sql STRING
+    DEFINE list STRING
+    DEFINE i INTEGER
+    LET i = 1
+    CALL ui.ComboBox.forName("container_name").clear()
+    CALL ui.ComboBox.forName("widget_name").clear()
+    CALL ui.ComboBox.forName("dialog_name").clear()
+    CALL ui.ComboBox.forName("dataType_name").clear()
+    IF case_style == "camelCase" THEN
+        LET widget_sql = "SELECT widget_camelcase FROM widget_names ORDER BY weight"
+        LET container_sql = "SELECT container_camelcase FROM container_names ORDER BY weight"
+        LET dialog_sql = "SELECT dialog_camelcase FROM dialog_names ORDER BY weight"
+        LET datatype_sql = "SELECT datatype_camelcase FROM datatype_names ORDER BY weight"
+    ELSE 
+        LET widget_sql = "SELECT widget FROM widget_names ORDER BY weight"
+        LET container_sql = "SELECT container FROM container_names ORDER BY weight"
+        LET dialog_sql = "SELECT dialog FROM dialog_names ORDER BY weight"
+        LET datatype_sql = "SELECT datatype FROM datatype_names ORDER BY weight"
+    END IF
+    DECLARE widget_curs CURSOR FROM widget_sql
+    OPEN widget_curs
+    FOREACH widget_curs INTO list
+        IF case_style == "upshift" THEN
+            LET list = upshift(list)
+        END IF
+        CALL ui.ComboBox.forName("widget_name").addItem(i, list)
+        LET i += 1
+    END FOREACH
+    CLOSE widget_curs
+    LET i = 1
+    LET list = NULL
+    DECLARE container_curs CURSOR FROM container_sql
+    OPEN container_curs
+    FOREACH container_curs INTO list
+        IF case_style == "upshift" THEN
+            LET list = upshift(list)
+        END IF
+        CALL ui.ComboBox.forName("container_name").addItem(i, list)
+        LET i += 1
+    END FOREACH
+    CLOSE container_curs
+    LET i = 1
+    LET list = NULL
+    DECLARE dialog_curs CURSOR FROM dialog_sql
+    OPEN dialog_curs
+    FOREACH dialog_curs INTO list
+        IF case_style == "upshift" THEN
+            LET list = upshift(list)
+        END IF
+        CALL ui.ComboBox.forName("dialog_name").addItem(i, list)
+        LET i += 1
+    END FOREACH
+    CLOSE dialog_curs
+    LET i = 1
+    LET list = NULL
+    DECLARE datatype_curs CURSOR FROM datatype_sql
+    OPEN datatype_curs
+    FOREACH datatype_curs INTO list
+        IF case_style == "upshift" THEN
+            LET list = upshift(list)
+        END IF
+        CALL ui.ComboBox.forName("datatype_name").addItem(i, list)
+        LET i += 1
+    END FOREACH
+    CLOSE datatype_curs
+END FUNCTION
 
 -- Fills dialog box when typing in Name column of Widget Attributes tab
 FUNCTION populate_widget_attribute_name(d ui.Dialog, widget STRING, BUFFER STRING)
@@ -307,22 +390,41 @@ FUNCTION build_per() RETURNS STRING
 
     LET sb = base.StringBuffer.create()
     CALL sb.append("LAYOUT (TEXT=\"Widget & Style Demo\")\n")
-    IF m_data.container_name == "Grid" THEN
-        CALL sb.append("    GRID\n" || "    {\n")
-        CALL sb.append("        Control [f01                 : ]\n" || "        Test    [f02                 : ]\n")  -- TODO set grid width to entered value
-    ELSE IF m_data.container_name == "table" THEN
-            CALL sb.append("    table\n" || "    {\n")
-            CALL sb.append("     Control         Test     \n" || "    [f01        |f02        ]\n")  -- TODO set table width to entered value
-        END IF
+    IF m_data.container_name == "grid" OR m_data.container_name == "GRID" THEN
+        CALL sb.append("    GRID\n" || "    {\n")  -- TODO set grid width to entered value
+        CALL sb.append("        Control [f01                 : ]\n" || "        Test    [f02                 : ]\n")
+        CALL sb.append("    }\n")
+    ELSE IF m_data.container_name == "table" OR m_data.container_name == "TABLE" THEN
+        CALL sb.append("    TABLE\n" || "    {\n") -- TODO set table width to entered value
+        CALL sb.append("     Control     Test     \n" || "    [f01        |f02        ]\n")
+        CALL sb.append("    }\n")  
+    ELSE IF m_data.container_name == "folder" OR m_data.container_name == "FOLDER" THEN
+        CALL sb.append("    FOLDER\n")
+        CALL sb.append("        PAGE pg1 (TEXT=\"Widget_name\")\n")
+        CALL sb.append("            GRID\n" || "            {\n")
+        CALL sb.append("                Control [f01                 : ]\n")
+        CALL sb.append("            }\n" || "            END\n")
+        CALL sb.append("        END\n")
+        CALL sb.append("        PAGE pg2 (TEXT=\"Widget_attributes\")\n")
+        CALL sb.append("            GRID\n" || "            {\n")
+        CALL sb.append("                Test    [f02                 : ]\n")
+        CALL sb.append("            }\n" || "            END\n")
+        CALL sb.append("        END\n")
     END IF
-    CALL sb.append("    }\n" || "    END\n")
+    END IF
+    END IF 
+    CALL sb.append("    END\n")
     CALL sb.append("END\n" || "ATTRIBUTES\n")
     CALL sb.append(m_data.widget_name || " f01 = formonly.ctrl;\n")
     CALL sb.append(m_data.widget_name || " f02 = formonly.test1, STYLE=\"test\"")
     FOR i = 1 TO m_data.widget_attribute_arr.getLength()
         IF m_data.widget_attribute_arr[i].widget_attribute_name.getLength() > 0 THEN
             CALL sb.append(", ")
-            CALL sb.append(m_data.widget_attribute_arr[i].widget_attribute_name)
+            IF case_style == "upshift" THEN
+                CALL sb.append(upshift(m_data.widget_attribute_arr[i].widget_attribute_name))
+            ELSE
+                CALL sb.append(downshift(m_data.widget_attribute_arr[i].widget_attribute_name))
+            END IF
         END IF
         IF m_data.widget_attribute_arr[i].widget_attribute_value.getLength() > 0 THEN
             CALL sb.append(" = ")
