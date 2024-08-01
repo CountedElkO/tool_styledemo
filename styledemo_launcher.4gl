@@ -27,7 +27,7 @@ DEFINE m_data RECORD
     END RECORD
 END RECORD
 DEFINE case_style STRING
-DEFINE fileName STRING
+DEFINE fileName, s STRING
 MAIN
     WHENEVER ANY ERROR STOP
     DEFER INTERRUPT
@@ -42,18 +42,20 @@ MAIN
     OPEN WINDOW w WITH FORM "styledemo_launcher" ATTRIBUTES(STYLE="maximized")
     
     CALL ui.Interface.setText("Launcher")
-    
+    LET m_data.case_style_name = "UPPERCASE"
+    LET m_data.container_name = "grid"
+    LET m_data.widget_name = "edit"
+    LET m_data.dialog_name = "input"
+    LET m_data.dataType_name = "char"
     DIALOG ATTRIBUTES(UNBUFFERED)
         -- INPUT ARRAY for comboboxes
-        INPUT BY NAME m_data.case_style_name, m_data.container_name, m_data.widget_name, m_data.dialog_name, m_data.dataType_name ATTRIBUTES(WITHOUT DEFAULTS = TRUE)
+        INPUT BY NAME m_data.case_style_name, m_data.container_name, m_data.widget_name, m_data.dialog_name, m_data.dataType_name ATTRIBUTES (WITHOUT DEFAULTS = TRUE) 
             ON CHANGE case_style_name
                 LET case_style = m_data.case_style_name
                 CALL comboBoxFiller(case_style, ui.ComboBox.forName("container_name"))
                 CALL comboBoxFiller(case_style, ui.ComboBox.forName("widget_name"))
                 CALL comboBoxFiller(case_style, ui.ComboBox.forName("dialog_name"))
                 CALL comboBoxFiller(case_style, ui.ComboBox.forName("dataType_name"))
-                --CALL case_style_selector()
-                --CALL comboBoxFiller(case_style)
         END INPUT
         -- INPUT ARRAY for Widget Attributes tab
         INPUT ARRAY m_data.widget_attribute_arr FROM widget_attribute_scr.* ATTRIBUTES(INSERT ROW = FALSE)
@@ -132,11 +134,10 @@ MAIN
             {CALL fgl_winMessage("Info", "Not Implemented", "info") -- TODO read json file and serialize into m_data}
             
         ON ACTION export ATTRIBUTES(TEXT="Export")
-            LET fileName = util.JSON.stringify(m_data)
-            -- TODO CALL fgl_putFile(, fileName)
+            LET s = util.JSON.stringify(m_data)
+            -- TODO base.Channel or t.writeFile(styledemo_launcher.json)
             CALL ui.Interface.frontCall("standard", "saveFile", ["","","","saveFile"],[fileName])
-            
-            --CALL fgl_winMessage("Info", fileName, "info") -- TODO implement serialize m_data to json and write to file
+            --fgl_putFile("styledemo_launcher.json", fileName)
             
         ON ACTION close
             EXIT DIALOG
@@ -145,7 +146,7 @@ END MAIN
 
 -- Fills comboboxes with names based on case_style
 FUNCTION comboBoxFiller(case_style STRING, comboBox ui.ComboBox)
-    DEFINE sql_statement, list, table_name, column_name, cmb_name STRING
+    DEFINE sql_statement, list, data_variable, table_name, column_name, cmb_name STRING
     CALL comboBox.clear()
     LET cmb_name = comboBox.getColumnName()
     CASE cmb_name
@@ -172,10 +173,12 @@ FUNCTION comboBoxFiller(case_style STRING, comboBox ui.ComboBox)
     DECLARE comboBox_curs CURSOR FROM sql_statement
     OPEN comboBox_curs
     FOREACH comboBox_curs INTO list
+        -- TODO seperate logic and display
+        LET data_variable = list
         IF case_style == "UPPERCASE" THEN
             LET list = upshift(list)
         END IF
-        CALL comboBox.addItem(list, list)
+        CALL comboBox.addItem(data_variable, list)
     END FOREACH
     CLOSE comboBox_curs
 END FUNCTION
@@ -351,6 +354,7 @@ FUNCTION populate_completer_sql(name STRING, BUFFER STRING) RETURNS itemsListTyp
 END FUNCTION
 
 -- build per file
+-- TODO implement GRID and TABLE with dialogs of INPUT and Construct
 --write from scratch
 FUNCTION build_per() RETURNS STRING
     DEFINE sb base.StringBuffer
@@ -358,27 +362,14 @@ FUNCTION build_per() RETURNS STRING
 
     LET sb = base.StringBuffer.create()
     CALL sb.append("LAYOUT (TEXT=\"Widget & Style Demo\")\n")
-    IF m_data.container_name == "grid" OR m_data.container_name == "GRID" OR m_data.container_name == "Grid" THEN
+    IF m_data.container_name == "grid" THEN
         CALL sb.append("    GRID\n" || "    {\n")  -- TODO set grid width to entered value
-        CALL sb.append("        Control [f01                 : ]\n" || "        Test    [f02                 : ]\n")
+        CALL sb.append("        Control [f01                 : ]\n" || "        Test    [f02                 : ]\n")--Test2 [f03   ]
         CALL sb.append("    }\n")
-    ELSE IF m_data.container_name == "table" OR m_data.container_name == "TABLE" OR m_data.container_name == "Table" THEN
+    ELSE IF m_data.container_name == "table" THEN
         CALL sb.append("    TABLE\n" || "    {\n") -- TODO set table width to entered value
         CALL sb.append("     Control     Test     \n" || "    [f01        |f02        ]\n")
-        CALL sb.append("    }\n")  
-    ELSE IF m_data.container_name == "folder" OR m_data.container_name == "FOLDER" OR m_data.container_name == "Folder" THEN
-        CALL sb.append("    FOLDER\n")
-        CALL sb.append("        PAGE pg1 (TEXT=\"Widget_name\")\n")
-        CALL sb.append("            GRID\n" || "            {\n")
-        CALL sb.append("                Control [f01                 : ]\n")
-        CALL sb.append("            }\n" || "            END\n")
-        CALL sb.append("        END\n")
-        CALL sb.append("        PAGE pg2 (TEXT=\"Widget_attributes\")\n")
-        CALL sb.append("            GRID\n" || "            {\n")
-        CALL sb.append("                Test    [f02                 : ]\n")
-        CALL sb.append("            }\n" || "            END\n")
-        CALL sb.append("        END\n")
-    END IF
+        CALL sb.append("    }\n")
     END IF
     END IF 
     CALL sb.append("    END\n")
@@ -407,6 +398,37 @@ FUNCTION build_per() RETURNS STRING
     LOCATE t IN MEMORY
     LET t =  sb.toString()
     CALL t.writeFile("styledemo_test.per")
+    RETURN sb.toString()
+END FUNCTION
+
+FUNCTION build_4gl() RETURNS STRING
+    DEFINE sb base.StringBuffer
+    DEFINE i INTEGER
+
+    LET sb = base.StringBuffer.create()
+    CALL sb.append("MAIN\n")
+    CALL sb.append("DEFINE rec RECORD\n")
+    CALL sb.append("    ctrl STRING,\n")
+    CALL sb.append("    test1 STRING\n")
+    CALL sb.append("END RECORD\n" || "\n")
+    CALL sb.append("    WHENEVER ANY ERROR STOP\n")
+    CALL sb.append("    DEFER INTERRUPT\n")
+    CALL sb.append("    DEFER QUIT\n")
+    CALL sb.append("    OPTIONS INPUT WRAP\n")
+    CALL sb.append("    OPTIONS FIELD ORDER FORM\n" || "\n")
+    CALL sb.append("    CALL ui.Interface.setText(\"Test\")\n")
+    CALL sb.append("    CALL ui.Interface.loadStyles(\"styledemo_test.4st\")\n" || "\n")
+    CALL sb.append("    CLOSE WINDOW SCREEN\n" || "\n")
+    CALL sb.append("    LET rec.ctrl = \"Lorem Ipsum\"\n")
+    CALL sb.append("    LET rec.test1 = \"Lorem Ipsum\"\n" || "\n")
+    CALL sb.append("    OPEN WINDOW w WITH FORM \"styledemo_test\" ATTRIBUTES(TEXT=\"Style Demo\")\n")
+    CALL sb.append("    INPUT BY NAME rec.* ATTRIBUTES(WITHOUT DEFAULTS=TRUE)\n")
+    CALL sb.append("END MAIN\n")
+
+    VAR t TEXT
+    LOCATE t IN MEMORY
+    LET t =  sb.toString()
+    CALL t.writeFile("styledemo_test.4gl")
     RETURN sb.toString()
 END FUNCTION
 
