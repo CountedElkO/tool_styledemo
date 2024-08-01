@@ -191,9 +191,10 @@ FUNCTION container_names()
     CREATE TABLE container_names (container CHAR(20), weight INTEGER, camelcase char(20))
     INSERT INTO container_names VALUES ("grid", 1, "Grid")
     INSERT INTO container_names VALUES ("table", 2, "Table")
-    INSERT INTO container_names VALUES ("scrollgrid", 3, "ScrollGrid")
-    INSERT INTO container_names VALUES ("matrix", 4, "Matrix")
-    INSERT INTO container_names VALUES ("tree", 5, "Tree")
+    INSERT INTO container_names VALUES ("folder", 3, "Folder")
+    INSERT INTO container_names VALUES ("scrollgrid", 4, "ScrollGrid")
+    INSERT INTO container_names VALUES ("matrix", 5, "Matrix")
+    INSERT INTO container_names VALUES ("tree", 6, "Tree")
 END FUNCTION
 
 FUNCTION dialog_names()
