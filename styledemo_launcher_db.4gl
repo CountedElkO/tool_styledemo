@@ -11,11 +11,11 @@ FUNCTION populate_db()
     CALL common_style_attributes()
     CALL widget_style_names()
     CALL widget_style_values()
-
+    CALL datatype_names()
 END FUNCTION
 
 FUNCTION widget_names()
-    CREATE table widget_names(widget CHAR(20), weight INTEGER, widget_camelcase char(20))
+    CREATE table widget_names(widget CHAR(20), weight INTEGER, camelcase char(20))
 
     INSERT INTO widget_names VALUES ("aggregate", 1, "Aggregate")
     INSERT INTO widget_names VALUES ("buttonedit", 2, "ButtonEdit")
@@ -37,7 +37,7 @@ FUNCTION widget_names()
 END FUNCTION
 
 FUNCTION datatype_names()
-    CREATE table datatype_names(widget CHAR(20), weight INTEGER, datatype_camelcase char(20))
+    CREATE table datatype_names(datatype CHAR(20), weight INTEGER, camelcase char(20))
 
     INSERT INTO datatype_names VALUES ("char", 1, "Char")
     INSERT INTO datatype_names VALUES ("boolean", 2, "Boolean")
@@ -170,7 +170,7 @@ FUNCTION widget_attribute_values()
 END FUNCTION
 
 FUNCTION container_names()
-    CREATE TABLE container_names (container CHAR(20), weight INTEGER, widget_camelcase char(20))
+    CREATE TABLE container_names (container CHAR(20), weight INTEGER, camelcase char(20))
     INSERT INTO container_names VALUES ("grid", 1, "Grid")
     INSERT INTO container_names VALUES ("table", 2, "Table")
     INSERT INTO container_names VALUES ("scrollgrid", 3, "ScrollGrid")
@@ -179,7 +179,7 @@ FUNCTION container_names()
 END FUNCTION
 
 FUNCTION dialog_names()
-    CREATE TABLE dialog_names (dialog CHAR(20), weight INTEGER, widget_camelcase char(20))
+    CREATE TABLE dialog_names (dialog CHAR(20), weight INTEGER, camelcase char(20))
     INSERT INTO dialog_names VALUES ("input", 1, "Input")
     INSERT INTO dialog_names VALUES ("menu", 2, "Menu")
     INSERT INTO dialog_names VALUES ("construct", 3, "Construct")
