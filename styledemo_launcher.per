@@ -6,7 +6,7 @@ LAYOUT (TEXT="Widget & Style Demo Launcher")
                 {
                 Container    [f01      ] Dialog      [f03      ] 
                 Widget       [f02      ] DataType    [f04      ]
-                Case Style   [f00                              ]
+                Case Style (optional)[f00                     ]
                 }
                 END #GRID
                 FOLDER
@@ -67,11 +67,11 @@ LAYOUT (TEXT="Widget & Style Demo Launcher")
     END #VBOX
 END #LAYOUT
 ATTRIBUTES
-    radiogroup f00 = formonly.case_style_name, ORIENTATION=HORIZONTAL, ITEMS=("UPPERCASE", "camelCase", "lowercase");
-    combobox f01 = formonly.container_name; --ITEMS=("grid", "table", "folder", "scrollgrid");
-    combobox f02 = formonly.widget_name; --ITEMS=("buttonedit", "checkbox", "combobox", "dateedit", "datetimeedit", "edit", "image", "label", "progressbar", "radiogroup", "slider", "spinedit", "textedit", "timeedit");
-    combobox f03 = formonly.dialog_name; --ITEMS=("input", "construct");
-    combobox f04 = formonly.datatype_name; -- ITEMS=("char", "boolean", "integer", "date", "datetime", "interval", "decimal", "float");
+    radiogroup f00 = formonly.case_style_name, ORIENTATION=HORIZONTAL, ITEMS=("UPPERCASE", "camelCase", "lowercase"), DEFAULT="UPPERCASE";
+    combobox f01 = formonly.container_name, INITIALIZER=styledemo_launcher.firstComboBox;
+    combobox f02 = formonly.widget_name, INITIALIZER=styledemo_launcher.firstComboBox;
+    combobox f03 = formonly.dialog_name, INITIALIZER=styledemo_launcher.firstComboBox;
+    combobox f04 = formonly.datatype_name, INITIALIZER=styledemo_launcher.firstComboBox;
 
     edit c01 = formonly.widget_attribute_name, SCROLL, TITLE="Name", COMPLETER, PLACEHOLDER="Press SPACE";
     edit c02 = formonly.widget_attribute_value, SCROLL, TITLE="Value", COMPLETER, PLACEHOLDER="Press SPACE";
