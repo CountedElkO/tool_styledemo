@@ -12,24 +12,31 @@ LAYOUT (TEXT="Widget & Style Demo Launcher")
                 }
                 END #GRID
                 FOLDER
-                    PAGE (TEXT="Widget Attributes")
+                    PAGE p1 (TEXT="Widget Attributes")
                         TABLE (STRETCHCOLUMNS)
                         {
                         [c01        |c02        ]
                         }
                         END #TABLE
                     END #PAGE
-                    PAGE (TEXT="Widget Styles")
-                        TABLE  (STRETCHCOLUMNS)
+                    PAGE p2 (TEXT="Widget_2 Attributes")
+                        TABLE (STRETCHCOLUMNS)
                         {
                         [c03       |c04       ]
                         }
                         END #TABLE
                     END #PAGE
-                    PAGE (TEXT="Common Styles")
+                    PAGE p3 (TEXT="Widget Styles")
                         TABLE  (STRETCHCOLUMNS)
                         {
                         [c05       |c06       ]
+                        }
+                        END #TABLE
+                    END #PAGE
+                    PAGE p4 (TEXT="Widget_2 Styles")
+                        TABLE  (STRETCHCOLUMNS)
+                        {
+                        [c07       |c08       ]
                         }
                         END #TABLE
                     END #PAGE
@@ -62,8 +69,8 @@ LAYOUT (TEXT="Widget & Style Demo Launcher")
         END #HBOX
         GRID
         {
+        [b04]
         [b01]
-        [   ]
         [   ]
         }
     END #VBOX
@@ -79,10 +86,13 @@ ATTRIBUTES
 
     edit c01 = formonly.widget_attribute_name, SCROLL, TITLE="Name", COMPLETER, PLACEHOLDER="Press SPACE";
     edit c02 = formonly.widget_attribute_value, SCROLL, TITLE="Value", COMPLETER, PLACEHOLDER="Press SPACE";
-    edit c03 = formonly.widget_style_attribute_name,  SCROLL, TITLE="Name", COMPLETER, PLACEHOLDER="Press Space";
-    edit c04 = formonly.widget_style_attribute_value, SCROLL, TITLE="Value", COMPLETER, PLACEHOLDER="Press Space";
-    edit c05 = formonly.common_style_attribute_name,  SCROLL, TITLE="Name", COMPLETER, PLACEHOLDER="Press SPACE";
-    edit c06 = formonly.common_style_attribute_value, SCROLL, TITLE="Value", COMPLETER, PLACEHOLDER="Press SPACE";
+    edit c03 = formonly.widget_2_attribute_name,  SCROLL, TITLE="Name", COMPLETER, PLACEHOLDER="Press Space";
+    edit c04 = formonly.widget_2_attribute_value, SCROLL, TITLE="Value", COMPLETER, PLACEHOLDER="Press Space";
+    
+    edit c05 = formonly.widget_style_attribute_name,  SCROLL, TITLE="Name", COMPLETER, PLACEHOLDER="Press Space";
+    edit c06 = formonly.widget_style_attribute_value, SCROLL, TITLE="Value", COMPLETER, PLACEHOLDER="Press Space";
+    edit c07 = formonly.widget_2_style_attribute_name,  SCROLL, TITLE="Name", COMPLETER, PLACEHOLDER="Press Space";
+    edit c08 = formonly.widget_2_style_attribute_value, SCROLL, TITLE="Value", COMPLETER, PLACEHOLDER="Press Space";
 
     textedit t01 = formonly.fourgl, STRETCH=BOTH, FONTPITCH=FIXED;
     textedit t02 = formonly.per, STRETCH=BOTH, FONTPITCH=FIXED;
@@ -91,10 +101,14 @@ ATTRIBUTES
     BUTTON b01: go, TEXT="GO", STRETCH=X, STYLE="triple";
     BUTTON b02: add_widget, TEXT="Add Widget_2";
     BUTTON b03: remove_widget, TEXT="Remove Widget_2";
+    BUTTON b04: display_files, TEXT="Display Code", STRETCH=X, STYLE="triple";
 END #ATTRIBUTES
 INSTRUCTIONS 
     SCREEN RECORD scr(case_style_name, widget_name, container_name, dialog_name, datatype_name, widget_2_name, datatype_2_name);
-    SCREEN RECORD widget_attribute_scr(widget_attribute_name, widget_attribute_value); 
+
+    SCREEN RECORD widget_attribute_scr(widget_attribute_name, widget_attribute_value);
+    SCREEN RECORD widget_2_attribute_scr(widget_2_attribute_name, widget_2_attribute_value);
+
     SCREEN RECORD widget_style_scr(widget_style_attribute_name, widget_style_attribute_value);
-    SCREEN RECORD common_style_scr(common_style_attribute_name, common_style_attribute_value);
+    SCREEN RECORD widget_2_style_scr(widget_2_style_attribute_name, widget_2_style_attribute_value);
 END #INSTRUCTIONS
