@@ -182,8 +182,8 @@ MAIN
         --Exports JSON file
         ON ACTION export ATTRIBUTES(TEXT="Export")
             LET s = util.JSON.stringify(m_data)
-            LET t = s
             LOCATE t in MEMORY
+            LET t = s
             CALL t.writeFile("styledemo_launcher.json")
             CALL ui.Interface.frontCall("standard", "saveFile", ["","","","saveFile"],[fileName])
             CALL fgl_putfile("styledemo_launcher.json", fileName)
@@ -394,7 +394,7 @@ FUNCTION build_per() RETURNS STRING
     CALL sb.append("    END\n")
     CALL sb.append("END\n" || "ATTRIBUTES\n")
     CALL sb.append(widget_name || " f01 = formonly.ctrl;\n")
-    CALL sb.append(widget_name || " f02 = formonly.test1, STYLE=\"test\"")
+    CALL sb.append(widget_name || " f02 = formonly.test1, STYLE=\"test1\"")
     FOR i = 1 TO m_data.widget_attribute_arr.getLength()
         IF m_data.widget_attribute_arr[i].widget_attribute_name.getLength() > 0 THEN
             CALL sb.append(", ")
@@ -415,7 +415,7 @@ FUNCTION build_per() RETURNS STRING
     END FOR
     IF widget_2_flag == 1 THEN
         CALL sb.append(";\n")
-        CALL sb.append(widget_2_name || " f03 = formonly.test2, STYLE=\"test\"")
+        CALL sb.append(widget_2_name || " f03 = formonly.test2, STYLE=\"test2\"")
         FOR i = 1 to m_data.widget_2_attribute_arr.getLength()
             IF m_data.widget_2_attribute_arr[i].widget_2_attribute_name.getLength() > 0 THEN
                 CALL sb.append(", ")
@@ -489,6 +489,7 @@ FUNCTION build_4gl() RETURNS STRING
 END FUNCTION
 
 -- build 4st file.
+-- TODO 
 -- Start from a template file and append nodes
 FUNCTION build_4st() RETURNS STRING
     DEFINE doc xml.DomDocument
@@ -501,13 +502,21 @@ FUNCTION build_4st() RETURNS STRING
     LET stylelist_node = doc.getDocumentElement()
 
     LET style_node = stylelist_node.appendChildElement("Style")
-    CALL style_node.setAttribute("name", m_data.widget_name)
+    CALL style_node.setAttribute("name", ".test1")
     FOR i = 1 TO m_data.widget_style_arr.getLength()
         LET styleattribute_node = style_node.appendChildElement("StyleAttribute")
         CALL styleattribute_node.setAttribute("name", m_data.widget_style_arr[i].widget_style_attribute_name)
         CALL styleattribute_node.setAttribute("value", m_data.widget_style_arr[i].widget_style_attribute_value)
     END FOR
-
+    IF widget_2_flag == 1 THEN
+        LET style_node = stylelist_node.appendChildElement("Style")
+        CALL style_node.setAttribute("name", ".test2")
+        FOR i = 1 TO m_data.widget_2_style_arr.getLength()
+            LET styleattribute_node = style_node.appendChildElement("StyleAttribute")
+            CALL styleattribute_node.setAttribute("name", m_data.widget_2_style_arr[i].widget_2_style_attribute_name)
+            CALL styleattribute_node.setAttribute("value", m_data.widget_2_style_arr[i].widget_2_style_attribute_value)
+        END FOR
+    END IF
     -- .test Style
     {LET style_node = stylelist_node.appendChildElement("Style")
     CALL style_node.setAttribute("name", ".test")
