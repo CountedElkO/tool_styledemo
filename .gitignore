@@ -4,5 +4,6 @@
 bin
 *.4p*
 .DS_Store
+styledemo_test.4gl
 styledemo_test.per
 styledemo_test.4st

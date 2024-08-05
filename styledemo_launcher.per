@@ -4,8 +4,10 @@ LAYOUT (TEXT="Widget & Style Demo Launcher")
             VBOX
                 GRID grid_one
                 {
-                Container    [f01      ] Dialog      [f03      ] 
-                Widget       [f02      ] DataType    [f04      ]
+                Container    [f01      ] Dialog      [f02      ] 
+                Widget       [f03      ] DataType    [f04      ]
+                [b02]        [f05      ]             [f06      ]
+                [b03]
                 Case Style (optional)[f00                     ]
                 }
                 END #GRID
@@ -37,7 +39,7 @@ LAYOUT (TEXT="Widget & Style Demo Launcher")
                 PAGE pg4gl (TEXT="Source (.4gl)")
                     GRID
                     {
-                    Not Implemented
+                    [t01]
                     }
                     END #GRID
                 END #PAGE
@@ -69,9 +71,11 @@ END #LAYOUT
 ATTRIBUTES
     radiogroup f00 = formonly.case_style_name, ORIENTATION=HORIZONTAL, ITEMS=("UPPERCASE", "camelCase", "lowercase");
     combobox f01 = formonly.container_name, INITIALIZER=styledemo_launcher.firstComboBox, PLACEHOLDER="Select a container";
-    combobox f02 = formonly.widget_name, INITIALIZER=styledemo_launcher.firstComboBox, PLACEHOLDER="Select a widget";
-    combobox f03 = formonly.dialog_name, INITIALIZER=styledemo_launcher.firstComboBox, PLACEHOLDER="Select a dialog";
+    combobox f02 = formonly.dialog_name, INITIALIZER=styledemo_launcher.firstComboBox, PLACEHOLDER="Select a dialog";
+    combobox f03 = formonly.widget_name, INITIALIZER=styledemo_launcher.firstComboBox, PLACEHOLDER="Select a widget";
     combobox f04 = formonly.datatype_name, INITIALIZER=styledemo_launcher.firstComboBox, PLACEHOLDER="Select a datatype";
+    combobox f05 = formonly.widget_2_name, INITIALIZER=styledemo_launcher.firstComboBox, PLACEHOLDER="Select a widget";
+    combobox f06 = formonly.datatype_2_name, INITIALIZER=styledemo_launcher.firstComboBox, PLACEHOLDER="Select a datatype";
 
     edit c01 = formonly.widget_attribute_name, SCROLL, TITLE="Name", COMPLETER, PLACEHOLDER="Press SPACE";
     edit c02 = formonly.widget_attribute_value, SCROLL, TITLE="Value", COMPLETER, PLACEHOLDER="Press SPACE";
@@ -80,13 +84,16 @@ ATTRIBUTES
     edit c05 = formonly.common_style_attribute_name,  SCROLL, TITLE="Name", COMPLETER, PLACEHOLDER="Press SPACE";
     edit c06 = formonly.common_style_attribute_value, SCROLL, TITLE="Value", COMPLETER, PLACEHOLDER="Press SPACE";
 
+    textedit t01 = formonly.fourgl, STRETCH=BOTH, FONTPITCH=FIXED;
     textedit t02 = formonly.per, STRETCH=BOTH, FONTPITCH=FIXED;
     textedit t03 = formonly.st, STRETCH=BOTH, FONTPITCH=FIXED;
 
     BUTTON b01: go, TEXT="GO", STRETCH=X, STYLE="triple";
+    BUTTON b02: add_widget, TEXT="Add Widget_2";
+    BUTTON b03: remove_widget, TEXT="Remove Widget_2";
 END #ATTRIBUTES
 INSTRUCTIONS 
-    SCREEN RECORD scr(case_style_name, widget_name, container_name, dialog_name, datatype_name);
+    SCREEN RECORD scr(case_style_name, widget_name, container_name, dialog_name, datatype_name, widget_2_name, datatype_2_name);
     SCREEN RECORD widget_attribute_scr(widget_attribute_name, widget_attribute_value); 
     SCREEN RECORD widget_style_scr(widget_style_attribute_name, widget_style_attribute_value);
     SCREEN RECORD common_style_scr(common_style_attribute_name, common_style_attribute_value);

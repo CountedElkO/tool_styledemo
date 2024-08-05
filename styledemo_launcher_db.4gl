@@ -37,6 +37,7 @@ FUNCTION widget_names()
 END FUNCTION
 
 FUNCTION datatype_names()
+    -- TODO implement datatypes
     CREATE table datatype_names(datatype CHAR(20), weight INTEGER, camelcase char(20))
 
     INSERT INTO datatype_names VALUES ("char", 1, "Char")
@@ -200,41 +201,43 @@ FUNCTION widget_attribute_values()
     CREATE TABLE widget_attribute_values (name CHAR(20), value CHAR(20), weight INTEGER, quote BOOLEAN)
     -- TODO change widget_attribute_values format to this
     -- TODO fill more values
-    INSERT INTO widget_attribute_values VALUES ("justify", "left", 1, false) 
-    INSERT INTO widget_attribute_values VALUES ("justify", "center", 2, false) 
-    INSERT INTO widget_attribute_values VALUES ("justify", "right", 3, false) 
+    INSERT INTO widget_attribute_values VALUES ("justify", "left", 1, FALSE) 
+    INSERT INTO widget_attribute_values VALUES ("justify", "center", 2, FALSE) 
+    INSERT INTO widget_attribute_values VALUES ("justify", "right", 3, FALSE) 
 
-    INSERT INTO widget_attribute_values VALUES ("stretch", "none", 1, false)
-    INSERT INTO widget_attribute_values VALUES ("stretch", "x", 2, false)
-    INSERT INTO widget_attribute_values VALUES ("stretch", "y", 3, false)
-    INSERT INTO widget_attribute_values VALUES ("stretch", "both", 4, false)
+    INSERT INTO widget_attribute_values VALUES ("stretch", "none", 1, FALSE)
+    INSERT INTO widget_attribute_values VALUES ("stretch", "x", 2, FALSE)
+    INSERT INTO widget_attribute_values VALUES ("stretch", "y", 3, FALSE)
+    INSERT INTO widget_attribute_values VALUES ("stretch", "both", 4, FALSE)
 
-    INSERT INTO widget_attribute_values VALUES ("wordwrap", "compress", 1, false)
-    INSERT INTO widget_attribute_values VALUES ("wordwrap", "noncompress", 2, false)
+    INSERT INTO widget_attribute_values VALUES ("wordwrap", "compress", 1, FALSE)
+    INSERT INTO widget_attribute_values VALUES ("wordwrap", "noncompress", 2, FALSE)
 
     INSERT INTO widget_attribute_values VALUES ("comment", "", 1, TRUE)
     
-    INSERT INTO widget_attribute_values VALUES ("placeholder", "", 1, true)
+    INSERT INTO widget_attribute_values VALUES ("placeholder", "", 1, TRUE)
 
 END FUNCTION
 
 FUNCTION container_names()
+    -- TODO implement other containers
     CREATE TABLE container_names (container CHAR(20), weight INTEGER, camelcase char(20))
     INSERT INTO container_names VALUES ("grid", 1, "Grid")
     INSERT INTO container_names VALUES ("table", 2, "Table")
-    INSERT INTO container_names VALUES ("folder", 3, "Folder")
+    {INSERT INTO container_names VALUES ("folder", 3, "Folder")
     INSERT INTO container_names VALUES ("scrollgrid", 4, "ScrollGrid")
     INSERT INTO container_names VALUES ("matrix", 5, "Matrix")
-    INSERT INTO container_names VALUES ("tree", 6, "Tree")
+    INSERT INTO container_names VALUES ("tree", 6, "Tree")}
 END FUNCTION
 
 FUNCTION dialog_names()
+    -- TODO implement other dialogs
     CREATE TABLE dialog_names (dialog CHAR(20), weight INTEGER, camelcase char(20))
     INSERT INTO dialog_names VALUES ("input", 1, "Input")
-    INSERT INTO dialog_names VALUES ("menu", 2, "Menu")
     INSERT INTO dialog_names VALUES ("construct", 3, "Construct")
+    {INSERT INTO dialog_names VALUES ("menu", 2, "Menu")
     INSERT INTO dialog_names VALUES ("display array", 4, "Display Array")
-    INSERT INTO dialog_names VALUES ("input array", 5, "Input Array")
+    INSERT INTO dialog_names VALUES ("input array", 5, "Input Array")}
 END FUNCTION
 
 FUNCTION style_names()

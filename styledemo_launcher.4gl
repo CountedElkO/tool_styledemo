@@ -1,7 +1,7 @@
 IMPORT xml
 IMPORT util
 IMPORT FGL styledemo_launcher_db
-IMPORT FGL fgldialog
+--IMPORT FGL fgldialog
 
 TYPE itemsListType DYNAMIC ARRAY OF STRING
 
@@ -9,9 +9,11 @@ DEFINE m_data RECORD
 
     case_style_name STRING,
     widget_name STRING,
+    widget_2_name STRING,
     container_name STRING,
     dialog_name STRING,
     dataType_name STRING,
+    datatype_2_name STRING,
 
     widget_attribute_arr DYNAMIC ARRAY OF RECORD
         widget_attribute_name STRING,
@@ -27,7 +29,7 @@ DEFINE m_data RECORD
     END RECORD
 END RECORD
 DEFINE case_style STRING
-DEFINE fileName, s STRING
+DEFINE fileName, s, widget_2_flag STRING
 MAIN
     WHENEVER ANY ERROR STOP
     DEFER INTERRUPT
@@ -47,15 +49,23 @@ MAIN
     LET m_data.widget_name = "edit"
     LET m_data.dialog_name = "input"
     LET m_data.dataType_name = "char"
+    LET m_data.widget_2_name = "edit"
+    LET m_data.datatype_2_name = "char"
+    LET widget_2_flag = 0
+    CALL ui.Window.getCurrent().getForm().setElementHidden("remove_widget", 2)
+    CALL ui.Window.getCurrent().getForm().setElementHidden("formonly.widget_2_name", 2)
+    CALL ui.Window.getCurrent().getForm().setElementHidden("formonly.datatype_2_name", 2)
     DIALOG ATTRIBUTES(UNBUFFERED)
         -- INPUT ARRAY for comboboxes
-        INPUT BY NAME m_data.case_style_name, m_data.container_name, m_data.widget_name, m_data.dialog_name, m_data.dataType_name ATTRIBUTES (WITHOUT DEFAULTS = TRUE) 
+        INPUT BY NAME m_data.case_style_name, m_data.container_name, m_data.widget_name, m_data.dialog_name, m_data.dataType_name, m_data.widget_2_name, m_data.datatype_2_name ATTRIBUTES (WITHOUT DEFAULTS = TRUE) 
             ON CHANGE case_style_name
                 LET case_style = m_data.case_style_name
                 CALL comboBoxFiller(case_style, ui.ComboBox.forName("container_name"))
                 CALL comboBoxFiller(case_style, ui.ComboBox.forName("widget_name"))
                 CALL comboBoxFiller(case_style, ui.ComboBox.forName("dialog_name"))
                 CALL comboBoxFiller(case_style, ui.ComboBox.forName("dataType_name"))
+                CALL comboBoxFiller(case_style, ui.ComboBox.forName("widget_2_name"))
+                CALL comboBoxFiller(case_style, ui.ComboBox.forName("datatype_2_name"))
         END INPUT
         -- INPUT ARRAY for Widget Attributes tab
         INPUT ARRAY m_data.widget_attribute_arr FROM widget_attribute_scr.* ATTRIBUTES(INSERT ROW = FALSE)
@@ -117,8 +127,22 @@ MAIN
                 DISPLAY build_4st() TO st
 
         END INPUT
-        
+        ON ACTION add_widget
+            LET widget_2_flag = 1
+            CALL DIALOG.getForm().setElementHidden("remove_widget", 0)
+            CALL DIALOG.getForm().setElementHidden("formonly.widget_2_name", 0)
+            CALL DIALOG.getForm().setElementHidden("formonly.datatype_2_name", 0)
+            CALL DIALOG.getForm().setElementHidden("add_widget", 2)
+            DISPLAY build_4gl() TO fourgl
+        ON ACTION remove_widget
+            LET widget_2_flag = 0
+            CALL DIALOG.getForm().setElementHidden("add_widget", 0)
+            CALL DIALOG.getForm().setElementHidden("formonly.widget_2_name", 2)
+            CALL DIALOG.getForm().setElementHidden("formonly.datatype_2_name", 2)
+            CALL DIALOG.getForm().setElementHidden("remove_widget", 2)
+            DISPLAY build_4gl() TO fourgl
         ON ACTION go
+            DISPLAY build_4gl() TO fourgl
             DISPLAY build_per() TO per
             DISPLAY build_4st() TO st
             WHENEVER ERROR CONTINUE
@@ -160,6 +184,12 @@ FUNCTION comboBoxFiller(case_style STRING, comboBox ui.ComboBox)
             LET table_name = "dialog_names"
             LET column_name = "dialog"
         WHEN "datatype_name"
+            LET table_name = "datatype_names"
+            LET column_name = "datatype"
+        WHEN "widget_2_name"
+            LET table_name = "widget_names"
+            LET column_name = "widget"
+        WHEN "datatype_2_name"
             LET table_name = "datatype_names"
             LET column_name = "datatype"
     END CASE
@@ -359,23 +389,40 @@ END FUNCTION
 FUNCTION build_per() RETURNS STRING
     DEFINE sb base.StringBuffer
     DEFINE i INTEGER
+    DEFINE container_name, widget_name, widget_2_name STRING
 
     LET sb = base.StringBuffer.create()
+    IF case_style == "UPPERCASE" THEN
+        LET container_name = upshift(m_data.container_name)
+        LET widget_name = upshift(m_data.widget_name)
+        LET widget_2_name = upshift(m_data.widget_2_name)
+    END IF
     CALL sb.append("LAYOUT (TEXT=\"Widget & Style Demo\")\n")
     IF m_data.container_name == "grid" THEN
-        CALL sb.append("    GRID\n" || "    {\n")  -- TODO set grid width to entered value
-        CALL sb.append("        Control [f01                 : ]\n" || "        Test    [f02                 : ]\n")--Test2 [f03   ]
+        CALL sb.append("    " || container_name || "\n" || "    {\n")  -- TODO set grid width to entered value
+        CALL sb.append("        Control [f01                 : ]\n" || "        Test    [f02                 : ]\n")
+        IF widget_2_flag == 1 THEN
+            Call sb.append("        Test2   [f03                 : ]\n")
+        END IF
         CALL sb.append("    }\n")
     ELSE IF m_data.container_name == "table" THEN
-        CALL sb.append("    TABLE\n" || "    {\n") -- TODO set table width to entered value
-        CALL sb.append("     Control     Test     \n" || "    [f01        |f02        ]\n")
+        CALL sb.append("    " || container_name || "\n" || "    {\n") -- TODO set table width to entered value
+        IF widget_2_flag == 1 THEN
+            CALL sb.append("        Control     Test     Test2     \n" || "        [f01        |f02        |f03        ]\n")
+        ELSE
+            CALL sb.append("     Control     Test     \n" || "    [f01        |f02        ]\n")
+        END IF
         CALL sb.append("    }\n")
     END IF
-    END IF 
+    END IF
     CALL sb.append("    END\n")
     CALL sb.append("END\n" || "ATTRIBUTES\n")
-    CALL sb.append(m_data.widget_name || " f01 = formonly.ctrl;\n")
-    CALL sb.append(m_data.widget_name || " f02 = formonly.test1, STYLE=\"test\"")
+    CALL sb.append(widget_name || " f01 = formonly.ctrl;\n")
+    CALL sb.append(widget_name || " f02 = formonly.test1, STYLE=\"test\"")
+    IF widget_2_flag == 1 THEN
+        CALL sb.append(";\n")
+        CALL sb.append(widget_2_name || " f03 = formonly.test2, STYLE=\"test\"")
+    END IF
     FOR i = 1 TO m_data.widget_attribute_arr.getLength()
         IF m_data.widget_attribute_arr[i].widget_attribute_name.getLength() > 0 THEN
             CALL sb.append(", ")
@@ -387,8 +434,11 @@ FUNCTION build_per() RETURNS STRING
         END IF
         IF m_data.widget_attribute_arr[i].widget_attribute_value.getLength() > 0 THEN
             CALL sb.append(" = ")
-            -- TODO implement a way to determine if value is quoted or not
-            CALL sb.append(m_data.widget_attribute_arr[i].widget_attribute_value)
+            IF m_data.widget_attribute_arr[i].widget_attribute_name == "comment" || m_data.widget_attribute_arr[i].widget_attribute_name == "placeholder" THEN
+                CALL sb.append("\"" || m_data.widget_attribute_arr[i].widget_attribute_value || "\"")
+            ELSE
+                CALL sb.append(m_data.widget_attribute_arr[i].widget_attribute_value)
+            END IF
         END IF
     END FOR
     CALL sb.append(";\n")
@@ -401,15 +451,21 @@ FUNCTION build_per() RETURNS STRING
     RETURN sb.toString()
 END FUNCTION
 
+-- TODO complete this function
 FUNCTION build_4gl() RETURNS STRING
     DEFINE sb base.StringBuffer
-    DEFINE i INTEGER
+    --DEFINE i INTEGER
 
     LET sb = base.StringBuffer.create()
     CALL sb.append("MAIN\n")
     CALL sb.append("DEFINE rec RECORD\n")
     CALL sb.append("    ctrl STRING,\n")
-    CALL sb.append("    test1 STRING\n")
+    CALL sb.append("    test1 STRING")
+    IF widget_2_flag == 1 THEN
+        CALL sb.append(",\n" || "    test2 STRING\n")
+    ELSE
+        CALL sb.append("\n")
+    END IF
     CALL sb.append("END RECORD\n" || "\n")
     CALL sb.append("    WHENEVER ANY ERROR STOP\n")
     CALL sb.append("    DEFER INTERRUPT\n")
@@ -420,7 +476,12 @@ FUNCTION build_4gl() RETURNS STRING
     CALL sb.append("    CALL ui.Interface.loadStyles(\"styledemo_test.4st\")\n" || "\n")
     CALL sb.append("    CLOSE WINDOW SCREEN\n" || "\n")
     CALL sb.append("    LET rec.ctrl = \"Lorem Ipsum\"\n")
-    CALL sb.append("    LET rec.test1 = \"Lorem Ipsum\"\n" || "\n")
+    CALL sb.append("    LET rec.test1 = \"Lorem Ipsum\"\n" )
+    IF widget_2_flag == 1 THEN
+        CALL sb.append("    LET rec.test2 = \"Lorem Ipsum\"\n" || "\n")
+    ELSE
+        CALL sb.append("\n")
+    END IF
     CALL sb.append("    OPEN WINDOW w WITH FORM \"styledemo_test\" ATTRIBUTES(TEXT=\"Style Demo\")\n")
     CALL sb.append("    INPUT BY NAME rec.* ATTRIBUTES(WITHOUT DEFAULTS=TRUE)\n")
     CALL sb.append("END MAIN\n")
