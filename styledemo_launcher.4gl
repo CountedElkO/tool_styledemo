@@ -68,6 +68,7 @@ MAIN
                 CALL comboBoxFiller(case_style, ui.ComboBox.forName("datatype_2_name"))
         END INPUT
         -- INPUT ARRAY for Widget Attributes tab
+        --TODO change to handle two sets of values for each widget
         INPUT ARRAY m_data.widget_attribute_arr FROM widget_attribute_scr.* ATTRIBUTES(INSERT ROW = FALSE)
             BEFORE INPUT
                 CALL ui.Window.getCurrent().getForm().ensureElementVisible("pgper")
