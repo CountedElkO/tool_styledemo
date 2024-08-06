@@ -80,7 +80,10 @@ MAIN
                 CALL comboBoxFiller(case_style, ui.ComboBox.forName("widget_2_name"))
                 CALL comboBoxFiller(case_style, ui.ComboBox.forName("datatype_2_name"))
             ON CHANGE widget_name
-
+                IF m_data.widget_attribute_arr.getLength() > 0 THEN
+                    --CALL fgl_winQuestion("Are you sure you want to change the widget? All attributes will be cleared.")
+                    CALL m_data.widget_attribute_arr.clear()
+                END IF
             ON CHANGE widget_2_name
         END INPUT
         -- INPUT ARRAY for Widget Attributes tab
@@ -193,6 +196,7 @@ MAIN
             WHENEVER ERROR CONTINUE
             RUN "fglform styledemo_test.per"
             -- TODO handle case if form fails to compile
+            RUN "fglcomp styledemo_test.4gl"
             RUN "fglrun styledemo_test" WITHOUT WAITING
             
         --Clears all fields
@@ -256,7 +260,6 @@ FUNCTION comboBoxFiller(case_style STRING, comboBox ui.ComboBox)
     DECLARE comboBox_curs CURSOR FROM sql_statement
     OPEN comboBox_curs
     FOREACH comboBox_curs INTO list
-        -- TODO seperate logic and display
         LET data_variable = list
         IF case_style == "UPPERCASE" THEN
             LET list = upshift(list)
@@ -473,14 +476,13 @@ FUNCTION build_per() RETURNS STRING
 END FUNCTION
 
 -- build 4gl file
--- TODO implement dialogs of INPUT and Construct
--- TODO fix issues after pressing GO
 FUNCTION build_4gl() RETURNS STRING
     DEFINE sb base.StringBuffer
     --DEFINE i INTEGER
 
     LET sb = base.StringBuffer.create()
     CALL sb.append("MAIN\n")
+    CALL sb.append("DEFINE sql STRING\n")
     CALL sb.append("DEFINE rec RECORD\n")
     CALL sb.append("    ctrl STRING,\n")
     CALL sb.append("    test1 STRING")
@@ -506,7 +508,12 @@ FUNCTION build_4gl() RETURNS STRING
         CALL sb.append("\n")
     END IF
     CALL sb.append("    OPEN WINDOW w WITH FORM \"styledemo_test\" ATTRIBUTES(TEXT=\"Style Demo\")\n")
-    CALL sb.append("    INPUT BY NAME rec.* ATTRIBUTES(WITHOUT DEFAULTS=TRUE)\n")
+    IF m_data.dialog_name == "input" THEN
+        CALL sb.append("    INPUT BY NAME rec.* ATTRIBUTES(WITHOUT DEFAULTS=TRUE)\n")
+    ELSE IF m_data.dialog_name == "construct" THEN
+        CALL sb.append("    CONSTRUCT BY NAME sql ON rec.ctrl, rec.test1 \n")
+    END IF
+    END IF
     CALL sb.append("END MAIN\n")
 
     VAR t TEXT
