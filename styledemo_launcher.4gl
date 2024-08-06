@@ -69,6 +69,7 @@ MAIN
     DISPLAY build_4st() TO st
     DIALOG ATTRIBUTES(UNBUFFERED)
         -- INPUT ARRAY for comboboxes
+        -- TODO reset widget attributes and styles on widget change
         INPUT BY NAME m_data.case_style_name, m_data.container_name, m_data.widget_name, m_data.dialog_name, m_data.dataType_name, m_data.widget_2_name, m_data.datatype_2_name ATTRIBUTES (WITHOUT DEFAULTS = TRUE) 
             ON CHANGE case_style_name
                 LET case_style = m_data.case_style_name
@@ -78,6 +79,9 @@ MAIN
                 CALL comboBoxFiller(case_style, ui.ComboBox.forName("dataType_name"))
                 CALL comboBoxFiller(case_style, ui.ComboBox.forName("widget_2_name"))
                 CALL comboBoxFiller(case_style, ui.ComboBox.forName("datatype_2_name"))
+            ON CHANGE widget_name
+
+            ON CHANGE widget_2_name
         END INPUT
         -- INPUT ARRAY for Widget Attributes tab
         INPUT ARRAY m_data.widget_attribute_arr FROM widget_attribute_scr.* ATTRIBUTES(INSERT ROW = FALSE)
@@ -138,6 +142,25 @@ MAIN
                 DISPLAY build_4st() TO st
 
         END INPUT
+        -- INPUT ARRAY for Widget 2 Styles tab
+        INPUT ARRAY m_data.widget_2_style_arr FROM widget_2_style_scr.* ATTRIBUTES(INSERT ROW = FALSE)
+            BEFORE INPUT
+                CALL ui.Window.getCurrent().getForm().ensureElementVisible("pg4st")
+
+            ON CHANGE widget_2_style_attribute_name
+                CALL populate_widget_style_name(DIALOG, m_data.widget_2_name, m_data.widget_2_style_arr[arr_curr()].widget_2_style_attribute_name)
+            ON CHANGE widget_2_style_attribute_value
+                CALL populate_widget_style_value(
+                    DIALOG, m_data.widget_2_style_arr[arr_curr()].widget_2_style_attribute_name,
+                    m_data.widget_2_style_arr[arr_curr()].widget_2_style_attribute_value)
+
+            AFTER FIELD widget_2_style_attribute_value
+                DISPLAY build_4st() TO st
+
+            AFTER ROW
+                DISPLAY build_4st() TO st
+
+        END INPUT
         --Unhides and hides the second widget
         ON ACTION add_widget
             LET widget_2_flag = 1
@@ -177,14 +200,18 @@ MAIN
             INITIALIZE m_data TO NULL
         --Imports JSON file
         ON ACTION IMPORT ATTRIBUTES(TEXT="Import")
-            --CALL ui.Interface.frontCall("standard", "openFile")
-            {CALL fgl_winMessage("Info", "Not Implemented", "info") -- TODO read json file and serialize into m_data}
+            CALL ui.Interface.frontCall("standard", "openFile", ["","","","openFile"],[fileName])
+            CALL fgl_getfile(fileName, "styledemo_launcher.json")
+            LOCATE t IN MEMORY
+            CALL t.readFile("styledemo_launcher.json")
+            CALL util.JSON.parse(t, m_data)
         --Exports JSON file
         ON ACTION export ATTRIBUTES(TEXT="Export")
             LET s = util.JSON.stringify(m_data)
             LOCATE t in MEMORY
             LET t = s
             CALL t.writeFile("styledemo_launcher.json")
+            --TODO Expirement with the parameters
             CALL ui.Interface.frontCall("standard", "saveFile", ["","","","saveFile"],[fileName])
             CALL fgl_putfile("styledemo_launcher.json", fileName)
 
@@ -357,7 +384,7 @@ FUNCTION populate_widget_style_value_sql(name STRING, BUFFER STRING) RETURNS ite
 END FUNCTION
 
 -- build per file
---write from scratch
+-- TODO implement camelCase
 FUNCTION build_per() RETURNS STRING
     DEFINE sb base.StringBuffer
     DEFINE i INTEGER
@@ -406,7 +433,7 @@ FUNCTION build_per() RETURNS STRING
         END IF
         IF m_data.widget_attribute_arr[i].widget_attribute_value.getLength() > 0 THEN
             CALL sb.append(" = ")
-            IF m_data.widget_attribute_arr[i].widget_attribute_name == "comment" || m_data.widget_attribute_arr[i].widget_attribute_name == "placeholder" THEN
+            IF m_data.widget_attribute_arr[i].widget_attribute_name == "comment" OR m_data.widget_attribute_arr[i].widget_attribute_name == "placeholder" THEN
                 CALL sb.append("\"" || m_data.widget_attribute_arr[i].widget_attribute_value || "\"")
             ELSE
                 CALL sb.append(m_data.widget_attribute_arr[i].widget_attribute_value)
@@ -447,6 +474,7 @@ END FUNCTION
 
 -- build 4gl file
 -- TODO implement dialogs of INPUT and Construct
+-- TODO fix issues after pressing GO
 FUNCTION build_4gl() RETURNS STRING
     DEFINE sb base.StringBuffer
     --DEFINE i INTEGER
@@ -489,7 +517,6 @@ FUNCTION build_4gl() RETURNS STRING
 END FUNCTION
 
 -- build 4st file.
--- TODO 
 -- Start from a template file and append nodes
 FUNCTION build_4st() RETURNS STRING
     DEFINE doc xml.DomDocument
@@ -517,14 +544,6 @@ FUNCTION build_4st() RETURNS STRING
             CALL styleattribute_node.setAttribute("value", m_data.widget_2_style_arr[i].widget_2_style_attribute_value)
         END FOR
     END IF
-    -- .test Style
-    {LET style_node = stylelist_node.appendChildElement("Style")
-    CALL style_node.setAttribute("name", ".test")
-    FOR i = 1 TO m_data.common_style_arr.getLength()
-        LET styleattribute_node = style_node.appendChildElement("StyleAttribute")
-        CALL styleattribute_node.setAttribute("name", m_data.common_style_arr[i].common_style_attribute_name)
-        CALL styleattribute_node.setAttribute("value", m_data.common_style_arr[i].common_style_attribute_value)
-    END FOR}
     CALL doc.save("styledemo_test.4st")
     RETURN stylelist_node.toString()
 END FUNCTION
