@@ -140,7 +140,7 @@ MAIN
 
             AFTER FIELD widget_style_attribute_value
                 DISPLAY build_4st() TO st
-
+  
             AFTER ROW
                 DISPLAY build_4st() TO st
 
